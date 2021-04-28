@@ -10,7 +10,7 @@ async function runScript() {
   
   const vaults = await getVaults.run();
 
-  // filter vaults with expired short or long token and with collateral
+  // filter vaults with expired short tokens and with collateral not null
   const vaultsWithExpiredOTokens = vaults.filter( vault => {
     const hasShortOToken = vault.shortOToken && expiredAddresses.includes(vault.shortOToken.id);
     const hasCollateral = vault.collateralAmount
