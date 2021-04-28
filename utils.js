@@ -1,0 +1,1 @@
+exports.subgraphEndpoint = 'https://api.thegraph.com/subgraphs/name/opynfinance/gamma-mainnet';
