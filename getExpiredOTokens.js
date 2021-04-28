@@ -7,8 +7,6 @@ exports.run = async () => {
   // Apr 28 2021 7pm UTC
   const currentTimestamp = 1619622000
 
-  console.log(currentTimestamp)
-
   const query = `
     {
       otokens (first: 1000, where: {expiryTimestamp_lt: ${currentTimestamp}} ) {

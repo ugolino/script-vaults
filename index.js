@@ -30,7 +30,6 @@ async function runScript() {
 
   console.log(totalCollateralAmount)
 
-
 }
 
 runScript();
