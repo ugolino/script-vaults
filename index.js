@@ -13,9 +13,8 @@ async function runScript() {
   // filter vaults with expired short or long token and with collateral
   const vaultsWithExpiredOTokens = vaults.filter( vault => {
     const hasShortOToken = vault.shortOToken && expiredAddresses.includes(vault.shortOToken.id);
-    const hasLongOToken = vault.longOToken && expiredAddresses.includes(vault.longOToken.id);
     const hasCollateral = vault.collateralAmount
-    return (hasShortOToken || hasLongOToken) && hasCollateral
+    return hasShortOToken && hasCollateral
   });
   
   // group by collateralAsset and sum collateral

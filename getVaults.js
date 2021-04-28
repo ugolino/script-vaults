@@ -7,6 +7,7 @@ exports.run = async () => {
   const query = `
     {
       vaults(first: 1000){
+        id
         shortOToken {
           id
         }
