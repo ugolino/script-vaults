@@ -25,6 +25,8 @@ exports.run = async () => {
       }
     }`;
 
+  
+
   const response = await axios.post(
     subgraphEndpoint,
     JSON.stringify({ query })
