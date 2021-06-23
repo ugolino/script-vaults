@@ -15,6 +15,9 @@ exports.run = async () => {
         }
         id
         expiryTimestamp
+        strikePrice
+        isPut
+        totalSupply
       }
     }`;
 

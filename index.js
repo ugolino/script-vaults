@@ -1,70 +1,60 @@
 const getExpiredOTokens = require('./getExpiredOTokens');
-const getVaults = require('./getVaults');
+const getExpiryPrices = require('./getExpiryPrices');
+// const getVaults = require('./getVaults');
 
-
-// async function runScript() {
-
-//   const expiredOtokens = await getExpiredOTokens.run();
-
-//   const expiredAddresses = expiredOtokens.map( otoken => otoken.id );
-  
-//   const vaults = await getVaults.run();
-
-//   // filter vaults with expired short tokens and with collateral not null
-//   const vaultsWithExpiredOTokens = vaults.filter( vault => {
-//     const hasShortOToken = vault.shortOToken && expiredAddresses.includes(vault.shortOToken.id);
-//     const hasCollateral = vault.collateralAmount
-//     return hasShortOToken && hasCollateral
-//   });
-  
-//   // group by collateralAsset and sum collateral
-//   let totalCollateralAmount = [];
-//   vaultsWithExpiredOTokens.reduce(function (res, value) {
-//     if (!res[value.collateralAsset.symbol]) {
-//       res[value.collateralAsset.symbol] = { token: value.collateralAsset.symbol, collateralAmount: 0 };
-//       totalCollateralAmount.push(res[value.collateralAsset.symbol])
-//     }
-//     res[value.collateralAsset.symbol].collateralAmount += Number(value.collateralAmount) / 10 ** value.collateralAsset.decimals;
-//     return res;
-//   }, {});
-
-//   console.log(totalCollateralAmount)
-
-// }
-
-// runScript();
 
 async function runScript() {
 
   const expiredOtokens = await getExpiredOTokens.run();
 
-  const expiredAddresses = expiredOtokens.map( otoken => otoken.id );
+  // const expiredAddresses = expiredOtokens.map( otoken => otoken.id );
 
-  const vaults = await getVaults.run();
+  const expiryPrices = await getExpiryPrices.run();
+  
+  // const vaults = await getVaults.run();
 
-  // filter vaults with expired long tokens
-  const vaultsWithExpiredOTokens = vaults.filter( vault => {
-    const hasLongOToken = vault.longOToken && expiredAddresses.includes(vault.longOToken.id);
-    return hasLongOToken
-  });
+  ITMtokens = []
 
-  console.log(vaultsWithExpiredOTokens)
+  expiredOtokens.map( token => {
+    const expPrice = expiryPrices.filter(price => 
+    { return price.expiry === token.expiryTimestamp && price.asset.id === token.underlyingAsset.id}
+    )[0].price / 1e8
 
-  // filter vaults with colleteral only and group by collateralAsset and sum collateral
-  let totalCollateralAmount = [];
-  vaultsWithExpiredOTokens.filter(vault => vault.collateralAsset).reduce(function (res, value) {
-    if (!res[value.collateralAsset.symbol]) {
-      res[value.collateralAsset.symbol] = { token: value.collateralAsset.symbol, collateralAmount: 0 };
-      totalCollateralAmount.push(res[value.collateralAsset.symbol])
+    const isPut = token.isPut
+    const strikePrice = token.strikePrice / 1e8
+    const totalSupply = token.totalSupply / 1e8
+
+    const ITM = isPut ? Number(strikePrice) > Number(expPrice) : Number(strikePrice) < Number(expPrice)
+
+    if (ITM) {
+
+      const ITMAmount = isPut ? Number(strikePrice) - Number(expPrice) : Number(expPrice) - Number(strikePrice)
+
+      ITMtokens.push({
+        address: token.id,
+        strikePrice: strikePrice,
+        isPut: isPut,
+        expPrice: expPrice,
+        totalSupply: totalSupply,
+        ITM: ITM,
+        ITMAmount: ITMAmount,
+        totalITM: (totalSupply * ITMAmount)
+      })
     }
-    res[value.collateralAsset.symbol].collateralAmount += Number(value.collateralAmount) / 10 ** value.collateralAsset.decimals;
-    return res;
-  }, {});
+    
+  })
 
-  console.log(totalCollateralAmount)
+  console.log(ITMtokens)
 
+  const totToRedeem = ITMtokens.reduce(function (prev, cur) {
+    return prev + cur.totalITM;
+  }, 0);
 
+  console.log(totToRedeem)
 
 }
+
+runScript();
+
 
 runScript();
