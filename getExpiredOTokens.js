@@ -4,8 +4,8 @@ const subgraphEndpoint = utils.subgraphEndpoint;
 
 exports.run = async () => {
 
-  // Apr 28 2021 7pm UTC
-  const currentTimestamp = 1619622000
+  // Tue Apr 20 2021 08:00:00 GMT+0000
+  const currentTimestamp = 1618905600
 
   const query = `
     {
